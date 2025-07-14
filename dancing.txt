@@ -1,0 +1,94 @@
+┌──(velmo㉿vbox)-[~]
+└─$ nmap 10.129.232.225
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-07-13 19:55 -04
+Nmap scan report for 10.129.232.225
+Host is up (0.23s latency).
+Not shown: 996 closed tcp ports (reset)
+PORT     STATE SERVICE
+135/tcp  open  msrpc
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+5985/tcp open  wsman
+
+Nmap done: 1 IP address (1 host up) scanned in 4.74 seconds
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ nmap -sV -p 445 10.129.232.225
+Starting Nmap 7.95 ( https://nmap.org ) at 2025-07-13 19:56 -04
+Nmap scan report for 10.129.232.225
+Host is up (0.22s latency).
+
+PORT    STATE SERVICE       VERSION
+445/tcp open  microsoft-ds?
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 21.34 seconds
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ smbclient -L 10.129.232.225                   
+Password for [WORKGROUP\velmo]:
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        WorkShares      Disk      
+Reconnecting with SMB1 for workgroup listing.
+do_connect: Connection to 10.129.232.225 failed (Error NT_STATUS_RESOURCE_NAME_NOT_FOUND)
+Unable to connect with SMB1 -- no workgroup available
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ smbclient \\\\10.129.232.225\\\ADMIN$
+Password for [WORKGROUP\velmo]:
+tree connect failed: NT_STATUS_ACCESS_DENIED
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ smbclient \\\\10.129.232.225\\\C$    
+Password for [WORKGROUP\velmo]:
+tree connect failed: NT_STATUS_ACCESS_DENIED
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ smbclient \\\\10.129.232.225\\\IPC$
+Password for [WORKGROUP\velmo]:
+Try "help" to get a list of possible commands.
+smb: \> ls
+NT_STATUS_NO_SUCH_FILE listing \*
+smb: \> cd..
+cd..: command not found
+smb: \> exit
+                                                                             
+┌──(velmo㉿vbox)-[~]
+└─$ smbclient \\\\10.129.232.225\\\workShares
+Password for [WORKGROUP\velmo]:
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Mon Mar 29 05:22:01 2021
+  ..                                  D        0  Mon Mar 29 05:22:01 2021
+  Amy.J                               D        0  Mon Mar 29 06:08:24 2021
+  James.P                             D        0  Thu Jun  3 04:38:03 2021
+
+                5114111 blocks of size 4096. 1733577 blocks available
+smb: \> cd amy.J
+smb: \amy.J\> ls
+  .                                   D        0  Mon Mar 29 06:08:24 2021
+  ..                                  D        0  Mon Mar 29 06:08:24 2021
+  worknotes.txt                       A       94  Fri Mar 26 08:00:37 2021
+
+                5114111 blocks of size 4096. 1733449 blocks available
+smb: \amy.J\> get worknote.txt
+NT_STATUS_OBJECT_NAME_NOT_FOUND opening remote file \amy.J\worknote.txt
+smb: \amy.J\> cd ..
+smb: \> james.p
+james.p: command not found
+smb: \> james.P
+james.P: command not found
+smb: \> cd james.P
+smb: \james.P\> ls
+  .                                   D        0  Thu Jun  3 04:38:03 2021
+  ..                                  D        0  Thu Jun  3 04:38:03 2021
+  flag.txt                            A       32  Mon Mar 29 06:26:57 2021
+
+                5114111 blocks of size 4096. 1730434 blocks available
+smb: \james.P\> get flag.txt
+getting file \james.P\flag.txt of size 32 as flag.txt (0,0 KiloBytes/sec) (average 0,0 KiloBytes/sec)
